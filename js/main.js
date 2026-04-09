@@ -105,8 +105,9 @@
   }
 
   function animateCounter(el) {
-    var target = parseInt(el.getAttribute('data-target'), 10);
+    var target = parseFloat(el.getAttribute('data-target'));
     var suffix = el.getAttribute('data-suffix') || '';
+    var decimals = parseInt(el.getAttribute('data-decimals'), 10) || 0;
     var duration = 2000;
     var start = performance.now();
 
@@ -114,8 +115,8 @@
       var elapsed = now - start;
       var progress = Math.min(elapsed / duration, 1);
       var eased = 1 - Math.pow(1 - progress, 3);
-      var current = Math.round(eased * target);
-      el.textContent = current + suffix;
+      var current = eased * target;
+      el.textContent = (decimals > 0 ? current.toFixed(decimals) : Math.round(current)) + suffix;
       if (progress < 1) {
         requestAnimationFrame(step);
       }
@@ -317,17 +318,15 @@
       valid = false;
     }
 
-    if (phoneField && phoneField.value.trim()) {
+    if (!phoneField.value.trim()) {
+      showError(phoneField, 'err-phone', 'Please enter your phone number.');
+      valid = false;
+    } else {
       var cleaned = phoneField.value.replace(/\D/g, '');
       if (cleaned.length < 8 || cleaned.length > 12) {
         showError(phoneField, 'err-phone', 'Please enter a valid phone number.');
         valid = false;
       }
-    }
-
-    if (!messageField.value.trim()) {
-      showError(messageField, 'err-message', 'Please enter a message.');
-      valid = false;
     }
 
     return valid;
